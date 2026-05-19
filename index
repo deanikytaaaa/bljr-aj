@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C++ Notebook</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161a22;
+    --surface2: #1e2330;
+    --border: #2a3040;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --green: #00ff88;
+    --red: #ff4466;
+    --yellow: #ffd600;
+    --text: #e8eaf0;
+    --text2: #8892a4;
+    --text3: #4a5568;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-ui: 'Space Grotesk', sans-serif;
+    --radius: 10px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+  .light {
+    --bg: #f0f2f7;
+    --surface: #ffffff;
+    --surface2: #e8ecf4;
+    --border: #d0d7e3;
+    --accent: #0080ff;
+    --accent2: #7c3aed;
+    --green: #00aa55;
+    --red: #dd2244;
+    --yellow: #cc8800;
+    --text: #1a1f2e;
+    --text2: #4a5568;
+    --text3: #a0aab8;
+    --shadow: 0 4px 24px rgba(0,0,0,0.1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-ui); min-height: 100vh; transition: background 0.3s, color 0.3s; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em; }
+  .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .logo span { color: var(--accent); }
+  .header-actions { display: flex; gap: 10px; align-items: center; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 7px; font-family: var(--font-ui); font-size: 0.82rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; white-space: nowrap; }
+  .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+  .btn-accent { background: var(--accent); color: #000; }
+  .btn-accent:hover { opacity: 0.85; transform: translateY(-1px); }
+  .icon-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); width: 34px; height: 34px; border-radius: 7px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.15s; }
+  .icon-btn:hover { background: var(--border); color: var(--text); }
+  main { max-width: 900px; margin: 0 auto; padding: 28px 20px 80px; }
+  .toolbar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+  .toolbar-sep { width: 1px; height: 24px; background: var(--border); }
+  .dropdown { position: relative; }
+  .dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); left: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); min-width: 230px; box-shadow: var(--shadow); z-index: 200; overflow: hidden; }
+  .dropdown-menu.open { display: block; }
+  .dropdown-item { padding: 10px 14px; cursor: pointer; font-size: 0.85rem; transition: background 0.1s; display: flex; align-items: center; gap: 8px; }
+  .dropdown-item:hover { background: var(--surface2); }
+  .tag { font-family: var(--font-mono); font-size: 0.75rem; background: var(--surface2); color: var(--accent); padding: 2px 6px; border-radius: 4px; }
+  #cells { display: flex; flex-direction: column; gap: 16px; }
+  .cell { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: border-color 0.2s; animation: cellIn 0.25s ease; }
+  @keyframes cellIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .cell:focus-within { border-color: var(--accent); }
+  .cell-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  .cell-num { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text3); min-width: 30px; }
+  .cell-label { flex: 1; background: transparent; border: none; color: var(--text2); font-family: var(--font-ui); font-size: 0.82rem; font-weight: 500; outline: none; }
+  .cell-label::placeholder { color: var(--text3); }
+  .cell-label:focus { color: var(--text); }
+  .cell-actions { display: flex; gap: 5px; }
+  .run-btn { display: flex; align-items: center; gap: 5px; padding: 4px 12px; background: var(--accent); color: #000; border: none; border-radius: 5px; font-family: var(--font-ui); font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+  .run-btn:hover { opacity: 0.85; }
+  .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .run-btn.running { background: var(--yellow); }
+  .small-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text2); width: 26px; height: 26px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.12s; }
+  .small-btn:hover { background: var(--border); color: var(--text); }
+  .small-btn.del:hover { background: var(--red); color: #fff; border-color: var(--red); }
+  .code-textarea { width: 100%; min-height: 120px; background: var(--bg); color: var(--text); font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.65; border: none; padding: 14px 16px; resize: vertical; outline: none; tab-size: 4; transition: background 0.3s; }
+  .cell-output { border-top: 1px solid var(--border); background: var(--bg); }
+  .output-bar { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+  .output-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text3); }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); }
+  .status-dot.ok { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .status-dot.err { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .status-dot.running { background: var(--yellow); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+  .exec-time { font-size: 0.72rem; color: var(--text3); margin-left: auto; font-family: var(--font-mono); }
+  .output-content { padding: 12px 16px; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.7; white-space: pre-wrap; word-break: break-word; max-height: 300px; overflow-y: auto; }
+  .output-content.success { color: var(--green); }
+  .output-content.error { color: var(--red); }
+  .output-content.empty { color: var(--text3); font-style: italic; }
+  .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin 0.6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .add-cell-area { display: flex; justify-content: center; padding: 8px 0; }
+  .add-cell-btn { display: flex; align-items: center; gap: 6px; padding: 8px 20px; background: transparent; border: 1.5px dashed var(--border); border-radius: var(--radius); color: var(--text3); font-family: var(--font-ui); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.15s; width: 100%; justify-content: center; }
+  .add-cell-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.04); }
+  .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+  .toast { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 10px 16px; border-radius: var(--radius); font-size: 0.83rem; box-shadow: var(--shadow); animation: toastIn 0.2s ease; max-width: 300px; }
+  @keyframes toastIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+  .toast.success { border-left-color: var(--green); }
+  .toast.error { border-left-color: var(--red); }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 500; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; width: 480px; max-width: 92vw; box-shadow: var(--shadow); }
+  .modal h3 { margin-bottom: 12px; font-size: 1rem; }
+  .share-url { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 0.78rem; padding: 10px 12px; border-radius: 7px; margin-bottom: 12px; outline: none; word-break: break-all; resize: none; height: 80px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    C++<span>Notebook</span>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="runAll()">▶▶ Run All</button>
+    <button class="btn btn-ghost" onclick="openShareModal()">🔗 Share</button>
+    <button class="icon-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <button class="btn btn-accent" onclick="addCell()">+ Cell Baru</button>
+  </div>
+</header>
+<main>
+  <div class="toolbar">
+    <div class="dropdown" id="templateDropdown">
+      <button class="btn btn-ghost" onclick="toggleDropdown()">📦 Template ▾</button>
+      <div class="dropdown-menu" id="templateMenu">
+        <div class="dropdown-item" onclick="addFromTemplate('Hello World', 'hello')"><span class="tag">#include</span> Hello World</div>
+        <div class="dropdown-item" onclick="addFromTemplate('cmath — Matematika', 'cmath')"><span class="tag">cmath</span> Operasi Matematika</div>
+        <div class="dropdown-item" onclick="addFromTemplate('cstring — String', 'cstring')"><span class="tag">cstring</span> Manipulasi String</div>
+        <div class="dropdown-item" onclick="addFromTemplate('Array & Loop', 'array')"><span class="tag">array</span> Array & Looping</div>
+        <div class="dropdown-item" onclick="addFromTemplate('Rekursif', 'rekursif')"><span class="tag">func</span> Rekursif (Faktorial)</div>
+        <div class="dropdown-item" onclick="addFromTemplate('Struct', 'struct_')"><span class="tag">struct</span> Struct & Object</div>
+        <div class="dropdown-item" onclick="addFromTemplate('Sorting', 'sorting')"><span class="tag">sort</span> Bubble Sort</div>
+        <div class="dropdown-item" onclick="addFromTemplate('STL Vector & Map', 'vector')"><span class="tag">STL</span> Vector & Map</div>
+      </div>
+    </div>
+    <div class="toolbar-sep"></div>
+    <button class="btn btn-ghost" onclick="clearAll()">🗑 Clear All</button>
+    <button class="btn btn-ghost" onclick="saveToStorage()">💾 Simpan</button>
+  </div>
+  <div id="cells"></div>
+  <div class="add-cell-area">
+    <button class="add-cell-btn" onclick="addCell()">+ Tambah Cell Kosong</button>
+  </div>
+</main>
+<div class="toast-container" id="toastContainer"></div>
+<div class="modal-overlay" id="shareModal">
+  <div class="modal">
+    <h3>🔗 Share Notebook</h3>
+    <p style="font-size:0.83rem;color:var(--text2);margin-bottom:10px;">Semua cell di-encode ke URL ini. Bagiin ke siapapun!</p>
+    <textarea class="share-url" id="shareUrl" readonly></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeShareModal()">Tutup</button>
+      <button class="btn btn-accent" onclick="copyShareUrl()">📋 Copy URL</button>
+    </div>
+  </div>
+</div>
+<script>
+const TEMPLATES = {
+  hello:`#include <bits/stdc++.h>
+using namespace std;
+int main() {
+    cout << "Hello, World!" << endl;
+    cout << "Selamat datang di C++ Notebook!" << endl;
+    return 0;
+}`,
+  cmath:`#include <bits/stdc++.h>
+using namespace std;
+int main() {
+    double x = 16.0;
+    cout << "sqrt(16)   = " << sqrt(x) << endl;
+    cout << "pow(2,10)  = " << pow(2, 10) << endl;
+    cout << "abs(-42)   = " << abs(-42) << endl;
+    cout << "ceil(3.2)  = " << ceil(3.2) << endl;
+    cout << "floor(3.9) = " << floor(3.9) << endl;
+    cout << "log(e)     = " << log(M_E) << endl;
+    cout << "sin(pi/2)  = " << sin(M_PI / 2) << endl;
+    return 0;
+}`,
+  cstring:`#include <bits/stdc++.h>
+using namespace std;
+int main() {
+    string s = "Hello, C++ Notebook!";
+    cout << "Original  : " << s << endl;
+    cout << "Length    : " << s.length() << endl;
+    cout << "Substr    : " << s.substr(7, 3) << endl;
+    cout << "Find 'C++': " << s.find("C++") << endl;
+    string t = s;
+    t.replace(t.find("Notebook"), 8, "World");
+    cout << "Replaced  : " << t << endl;
+    return 0;
+}`,
+  array:`#include <bits/stdc++.h>
+using namespace std;
+int main() {
+    int arr[] = {5, 3, 8, 1, 9, 2, 7, 4, 6};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    cout << "Array: ";
+    for (int i = 0; i < n; i++) cout << arr[i] << " ";
+    cout << endl;
+    int sum = 0, mx = arr[0], mn = arr[0];
+    for (int i = 0; i < n; i++) {
+        sum += arr[i];
+        if (arr[i] > mx) mx = arr[i];
+        if (arr[i] < mn) mn = arr[i];
+    }
+    cout << "Sum: " << sum << ", Max: " << mx << ", Min: " << mn << endl;
+    cout << "Avg: " << (double)sum/n << endl;
+    return 0;
+}`,
+  rekursif:`#include <bits/stdc++.h>
+using namespace std;
+long long faktorial(int n) {
+    if (n <= 1) return 1;
+    return n * faktorial(n - 1);
+}
+int fibonacci(int n) {
+    if (n <= 1) return n;
+    return fibonacci(n-1) + fibonacci(n-2);
+}
+int main() {
+    cout << "=== Faktorial ===" << endl;
+    for (int i = 0; i <= 10; i++)
+        cout << i << "! = " << faktorial(i) << endl;
+    cout << "\\n=== Fibonacci ===" << endl;
+    for (int i = 0; i < 10; i++)
+        cout << "F(" << i << ") = " << fibonacci(i) << endl;
+    return 0;
+}`,
+  struct_:`#include <bits/stdc++.h>
+using namespace std;
+struct Mahasiswa {
+    string nama;
+    int nim;
+    float ipk;
+    void tampilkan() {
+        cout << "Nama: " << nama << ", NIM: " << nim << ", IPK: " << ipk << endl;
+    }
+};
+int main() {
+    Mahasiswa mhs[3] = {{"Budi Santoso",12345,3.85},{"Siti Rahayu",12346,3.72},{"Ahmad Fauzi",12347,3.91}};
+    for (int i = 0; i < 3; i++) mhs[i].tampilkan();
+    return 0;
+}`,
+  sorting:`#include <bits/stdc++.h>
+using namespace std;
+void bubbleSort(int arr[], int n) {
+    for (int i = 0; i < n-1; i++)
+        for (int j = 0; j < n-i-1; j++)
+            if (arr[j] > arr[j+1]) swap(arr[j], arr[j+1]);
+}
+int main() {
+    int arr[] = {64, 34, 25, 12, 22, 11, 90};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    cout << "Sebelum: ";
+    for (int i=0;i<n;i++) cout<<arr[i]<<" ";
+    bubbleSort(arr, n);
+    cout << "\\nSesudah: ";
+    for (int i=0;i<n;i++) cout<<arr[i]<<" ";
+    cout << endl;
+    return 0;
+}`,
+  vector:`#include <bits/stdc++.h>
+using namespace std;
+int main() {
+    vector<int> v = {1,2,3,4,5};
+    v.push_back(6);
+    cout << "Vector: ";
+    for (int x : v) cout << x << " ";
+    cout << "\\nSize: " << v.size() << endl;
+    sort(v.begin(), v.end(), greater<int>());
+    cout << "Sorted desc: ";
+    for (int x : v) cout << x << " ";
+    cout << endl;
+    map<string,int> nilai;
+    nilai["Matematika"] = 90;
+    nilai["Fisika"] = 85;
+    cout << "\\nNilai:" << endl;
+    for (auto& p : nilai) cout << "  " << p.first << ": " << p.second << endl;
+    return 0;
+}`
+};
+
+let cellCount = 0;
+let isDark = true;
+
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function addCell(label='', code='') {
+  cellCount++;
+  const id = 'cell_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+  const container = document.getElementById('cells');
+  const cell = document.createElement('div');
+  cell.className = 'cell';
+  cell.id = id;
+  cell.innerHTML = `
+    <div class="cell-header">
+      <span class="cell-num">[${cellCount}]</span>
+      <input class="cell-label" type="text" placeholder="Label cell (contoh: cmath)" value="${escHtml(label)}">
+      <div class="cell-actions">
+        <button class="run-btn" id="runBtn_${id}" onclick="runCell('${id}')">▶ Run</button>
+        <button class="small-btn" onclick="moveCell('${id}',-1)" title="Ke atas">↑</button>
+        <button class="small-btn" onclick="moveCell('${id}',1)" title="Ke bawah">↓</button>
+        <button class="small-btn del" onclick="deleteCell('${id}')" title="Hapus">✕</button>
+      </div>
+    </div>
+    <div class="cell-editor">
+      <textarea class="code-textarea" id="code_${id}" spellcheck="false" placeholder="// Tulis kode C++ di sini... (Ctrl+Enter untuk run)">${escHtml(code)}</textarea>
+    </div>
+    <div class="cell-output" id="output_${id}" style="display:none">
+      <div class="output-bar">
+        <div class="status-dot" id="dot_${id}"></div>
+        <span class="output-label">Output</span>
+        <span class="exec-time" id="time_${id}"></span>
+      </div>
+      <pre class="output-content" id="content_${id}"></pre>
+    </div>`;
+  container.appendChild(cell);
+  const ta = document.getElementById('code_' + id);
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Tab') { e.preventDefault(); const s=ta.selectionStart; ta.value=ta.value.substring(0,s)+'    '+ta.value.substring(ta.selectionEnd); ta.selectionStart=ta.selectionEnd=s+4; }
+    if (e.ctrlKey && e.key === 'Enter') runCell(id);
+  });
+  ta.addEventListener('input', saveToStorage);
+  closeDropdown();
+  updateCellNumbers();
+  saveToStorage();
+  ta.focus();
+}
+
+function addFromTemplate(label, key) {
+  addCell(label, TEMPLATES[key] || '');
+}
+
+function deleteCell(id) { document.getElementById(id)?.remove(); updateCellNumbers(); saveToStorage(); showToast('Cell dihapus','error'); }
+
+function moveCell(id, dir) {
+  const cell = document.getElementById(id);
+  const container = document.getElementById('cells');
+  const cells = [...container.children];
+  const idx = cells.indexOf(cell);
+  const target = cells[idx + dir];
+  if (!target) return;
+  if (dir===-1) container.insertBefore(cell, target); else container.insertBefore(target, cell);
+  updateCellNumbers(); saveToStorage();
+}
+
+function updateCellNumbers() {
+  const cells = document.querySelectorAll('.cell');
+  cells.forEach((c,i) => { const n=c.querySelector('.cell-num'); if(n) n.textContent=`[${i+1}]`; });
+  cellCount = cells.length;
+}
+
+function clearAll() { if(!confirm('Hapus semua cell?')) return; document.getElementById('cells').innerHTML=''; cellCount=0; saveToStorage(); showToast('Semua cell dihapus'); }
+
+async function runCell(id) {
+  const code = document.getElementById('code_'+id)?.value;
+  if (!code?.trim()) { showToast('Cell kosong!','error'); return; }
+  const btn = document.getElementById('runBtn_'+id);
+  const outputDiv = document.getElementById('output_'+id);
+  const content = document.getElementById('content_'+id);
+  const dot = document.getElementById('dot_'+id);
+  const timeEl = document.getElementById('time_'+id);
+  btn.disabled=true; btn.className='run-btn running'; btn.innerHTML='<span class="spinner"></span> Running...';
+  outputDiv.style.display='block'; dot.className='status-dot running';
+  content.className='output-content'; content.textContent='Compiling...'; timeEl.textContent='';
+  const start = Date.now();
+  try {
+    const res = await fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ source_code: code, language_id: 54, stdin: '', cpu_time_limit: 5 })
+    });
+    const elapsed = ((Date.now()-start)/1000).toFixed(2);
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    timeEl.textContent = elapsed+'s';
+    const out = data.stdout||''; const err = data.stderr||''; const ce = data.compile_output||'';
+    if (ce) { content.className='output-content error'; content.textContent='❌ Compile Error:\n'+ce; dot.className='status-dot err'; }
+    else if (err) { content.className='output-content error'; content.textContent='⚠️ Runtime Error:\n'+err; dot.className='status-dot err'; }
+    else if (out) { content.className='output-content success'; content.textContent=out; dot.className='status-dot ok'; }
+    else { content.className='output-content empty'; content.textContent='(Tidak ada output — status: '+(data.status?.description||'?')+')'; dot.className='status-dot'; }
+  } catch(e) {
+    const elapsed = ((Date.now()-start)/1000).toFixed(2); timeEl.textContent=elapsed+'s';
+    content.className='output-content error';
+    content.textContent='❌ Gagal konek ke compiler API.\n\nPastikan koneksi internet aktif.\nJika masih error, coba lagi beberapa detik.\n\n('+e.message+')';
+    dot.className='status-dot err';
+  }
+  btn.disabled=false; btn.className='run-btn'; btn.innerHTML='▶ Run';
+}
+
+async function runAll() {
+  const cells = document.querySelectorAll('.cell');
+  if (!cells.length) { showToast('Tidak ada cell!','error'); return; }
+  showToast('Menjalankan '+cells.length+' cell...');
+  for (const c of cells) { await runCell(c.id); await new Promise(r=>setTimeout(r,600)); }
+  showToast('Semua cell selesai! ✅','success');
+}
+
+function saveToStorage() {
+  const cells = document.querySelectorAll('.cell');
+  const data = [...cells].map(c => ({ label: c.querySelector('.cell-label')?.value||'', code: document.getElementById('code_'+c.id)?.value||'' }));
+  try { localStorage.setItem('cpp_notebook_v2', JSON.stringify(data)); } catch(e){}
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem('cpp_notebook_v2');
+    if (raw) { const data=JSON.parse(raw); if(data.length){ data.forEach(d=>addCell(d.label,d.code)); showToast(data.length+' cell dimuat 💾','success'); return true; } }
+  } catch(e){}
+  return false;
+}
+
+function loadFromURL() {
+  try {
+    const p = new URLSearchParams(location.search).get('nb');
+    if (p) { const data=JSON.parse(atob(p)); data.forEach(d=>addCell(d.label,d.code)); showToast('Notebook dimuat dari URL 🔗','success'); return true; }
+  } catch(e){}
+  return false;
+}
+
+function openShareModal() {
+  const cells = document.querySelectorAll('.cell');
+  const data = [...cells].map(c=>({label:c.querySelector('.cell-label')?.value||'',code:document.getElementById('code_'+c.id)?.value||''}));
+  const url = location.origin+location.pathname+'?nb='+btoa(JSON.stringify(data));
+  document.getElementById('shareUrl').value=url;
+  document.getElementById('shareModal').classList.add('open');
+}
+function closeShareModal(){ document.getElementById('shareModal').classList.remove('open'); }
+function copyShareUrl(){ navigator.clipboard.writeText(document.getElementById('shareUrl').value).then(()=>{ showToast('URL di-copy! 🔗','success'); closeShareModal(); }); }
+document.getElementById('shareModal').addEventListener('click',function(e){ if(e.target===this) closeShareModal(); });
+
+function toggleTheme(){ isDark=!isDark; document.body.classList.toggle('light',!isDark); document.getElementById('themeBtn').textContent=isDark?'🌙':'☀️'; localStorage.setItem('cpp_theme',isDark?'dark':'light'); }
+
+function toggleDropdown(){ document.getElementById('templateMenu').classList.toggle('open'); }
+function closeDropdown(){ document.getElementById('templateMenu').classList.remove('open'); }
+document.addEventListener('click',e=>{ if(!document.getElementById('templateDropdown').contains(e.target)) closeDropdown(); });
+
+function showToast(msg,type='') { const c=document.getElementById('toastContainer'); const t=document.createElement('div'); t.className='toast '+type; t.textContent=msg; c.appendChild(t); setTimeout(()=>t.remove(),3000); }
+
+// Init
+const savedTheme = localStorage.getItem('cpp_theme');
+if (savedTheme==='light'){ isDark=false; document.body.classList.add('light'); document.getElementById('themeBtn').textContent='☀️'; }
+if (!loadFromURL()) { if (!loadFromStorage()) { addCell('Hello World', TEMPLATES.hello); } }
+</script>
+</body>
+</html>
